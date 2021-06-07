@@ -112,6 +112,26 @@ class Hariku_Style:
                 background-color: {colour_pressed};
             }}
             """
+
+    def get_moodBtn_stylesheet_invert(colour,colour_pressed):
+        return f"""
+            QPushButton {{
+                padding: 0 10px;
+                border: 0px;
+                border-radius: 5px;
+                color: {colour};
+                background-color: none;
+                height: 30px;
+            }}
+            QPushButton:hover {{
+                background-color: {colour_pressed};
+                border: 0px;
+                color: {colour};
+            }}
+            QPushButton:pressed {{
+                background-color: {colour_pressed};
+            }}
+            """
 # rgb(152, 124, 200)
 # rgb(171,142,229)
 

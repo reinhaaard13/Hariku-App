@@ -32,7 +32,7 @@ class SplashScreen(QMainWindow):
         self.timer.timeout.connect(self.progress)
 
         # TIMER IN MILLISECONDS
-        self.timer.start(35)
+        self.timer.start(10)
 
         # Initial Text
         self.ui.label_desc.setText("<center> Loading <Strong> Apps</Strong> </center>")

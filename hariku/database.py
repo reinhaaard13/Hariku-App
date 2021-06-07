@@ -9,7 +9,6 @@ engine = create_engine("sqlite:///hariku.db", echo=True)
 Session = orm.sessionmaker(bind=engine)
 session = Session()
 
-
 class User(Base):
     __tablename__ = "user"
     user_id = Column(Integer, primary_key=True)
@@ -35,7 +34,5 @@ def verify_user(password):
         return True
     else:
         return False
-
-    
 
 Base.metadata.create_all(engine)

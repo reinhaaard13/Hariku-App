@@ -1,3 +1,4 @@
+from hariku.mediaplayer import MediaPlayer
 from threading import Thread
 from PyQt5 import QtGui
 from PyQt5 import QtCore
@@ -73,7 +74,7 @@ class Ui_SplashScreen(object):
         self.verticalLayout_2.addWidget(self.progressBar)
 
         self.label_loading = QLabel(self.dropShadowFrame)
-        self.label_loading.setFont(Hariku_Style.get_font(7))
+        self.label_loading.setFont(Hariku_Style.get_font(8))
         self.label_loading.setStyleSheet("")
         self.label_loading.setObjectName("label_loading")
         self.verticalLayout_2.addWidget(self.label_loading)
@@ -356,6 +357,13 @@ class DiaryScreen(QMainWindow):
         self.randomBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(24, 88, 191)","rgb(207, 207, 188)"))
         self.SideBar.addWidget(self.randomBtn)
 
+        # Create Music Player
+        self.hlayout_music = QHBoxLayout()
+        self.hlayout_music.setObjectName("hlayout_music")
+
+        # Instantiate Media Player Object
+        self.player = MediaPlayer()
+
         self.hlayout_music = QHBoxLayout()
         self.hlayout_music.setObjectName("hlayout_music")
 
@@ -366,12 +374,14 @@ class DiaryScreen(QMainWindow):
         self.vl_down.setFont(Hariku_Style.get_font(10))
         self.vl_down.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(185, 150, 24)","rgb(207, 207, 188)"))
         self.vl_down.setObjectName("vl_down")
+        self.vl_down.clicked.connect(lambda:self.player.changeVolumeBy(-5))
         self.hlayout_music.addWidget(self.vl_down)
 
         self.playBtn = QPushButton("Play Music")
         self.playBtn.setFont(Hariku_Style.get_font(10))
         self.playBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(185, 150, 24)","rgb(207, 207, 188)"))
         self.playBtn.setObjectName("playBtn")
+        self.playBtn.clicked.connect(self.togglePlay)
         self.hlayout_music.addWidget(self.playBtn)
 
         self.vl_up = QPushButton("+")
@@ -381,26 +391,25 @@ class DiaryScreen(QMainWindow):
         self.vl_up.setFont(Hariku_Style.get_font(10))
         self.vl_up.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(185, 150, 24)","rgb(207, 207, 188)"))
         self.vl_up.setObjectName("vl_up")
+        self.vl_up.clicked.connect(lambda:self.player.changeVolumeBy(5))
         self.hlayout_music.addWidget(self.vl_up)
         self.SideBar.addLayout(self.hlayout_music)
 
-        # self.playBtn = QPushButton("Play Music", self)
-        # self.playBtn.setFont(Hariku_Style.get_font(10))
-        # # rgb(185, 150, 24)
-        # # rgb(207, 207, 188)
-        # self.playBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(185, 150, 24)","rgb(207, 207, 188)"))
-        # self.SideBar.addWidget(self.playBtn)
+        self.hlayout_save = QHBoxLayout()
+        self.hlayout_save.setObjectName("hlayout_save")
 
-        self.musicPlayer = QMediaPlayer(self)
-        self.musicPlayer.setMedia(QMediaContent())
+        self.exitBtn = QPushButton("Exit", self)
+        self.exitBtn.setFont(Hariku_Style.get_font(8))
+        self.exitBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet_invert("rgb(255, 57, 46)","rgba(255, 57, 46, 25%)"))
+        self.hlayout_save.addWidget(self.exitBtn)
+        self.exitBtn.clicked.connect(self.exit)
 
         self.saveBtn = QPushButton("Save Diary", self)
         self.saveBtn.setFont(Hariku_Style.get_font(10))
-        # rgb(40, 186, 130)
-        # rgb(207, 207, 188)
         self.saveBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(40, 186, 130)","rgb(207, 207, 188)"))
-        self.SideBar.addWidget(self.saveBtn)
+        self.hlayout_save.addWidget(self.saveBtn)
 
+        self.SideBar.addLayout(self.hlayout_save)
         self.horizontalLayout.addLayout(self.SideBar)
 
         self.diaryArea = QTextEdit(self)
@@ -414,3 +423,11 @@ class DiaryScreen(QMainWindow):
         current_time = datetime.now().strftime("%I:%M:%S %p")
         self.clock.setText(current_time)
     
+    def togglePlay(self):
+        self.playBtn.setText(self.player.togglePlay())
+
+    def exit(self):
+        self.player.stop()
+        dialog = HomeScreen(self)
+        dialog.show()
+        self.hide()
