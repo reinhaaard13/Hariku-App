@@ -1,0 +1,37 @@
+{
+  "positive": [
+    "senang",
+    "bahagia",
+    "seneng",
+    "semangat",
+    "baik",
+    "keren",
+    "indah",
+    "tertawa",
+    "ketawa",
+    "senyum",
+    "hebat",
+    "menyenangkan",
+    "asyik",
+    "seru"
+  ],
+  "negative": [
+    "tidak",
+    "sedih",
+    "buruk",
+    "jelek",
+    "murung",
+    "nangis",
+    "menangis",
+    "susah",
+    "males",
+    "marah",
+    "dimarahin",
+    "ngambek",
+    "gaseru",
+    "menyedihkan",
+    "kecewa",
+    "mengecewakan",
+    "dikecewakan"
+  ]
+}
