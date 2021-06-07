@@ -51,6 +51,25 @@ class Hariku_Style:
                 background-color:rgb(211, 211, 191);
             }
         """
+
+    def get_wrong_lineedit_stylesheet():
+        return """
+            QLineEdit{
+                width: 205px;
+                height: 25px;
+                padding:10px;
+                border: 1px solid rgb(102, 0, 0);
+                border-radius: 10px;
+                background-color:rgb(224, 114, 114);
+            }
+            QLineEdit:hover{
+                background-color:rgb(219, 134, 134);
+            }
+            QLineEdit:focus{
+                border: 1px solid rgb(102, 0, 0);
+                background-color:rgb(219, 134, 134);
+            }
+        """
     
     def get_pushbutton_stylesheet():
         return """

@@ -61,9 +61,15 @@ class SplashScreen(QMainWindow):
             self.timer.stop()
 
             # SHOW MAIN WINDOW
-            from .views import RegisterScreen
-            self.main = RegisterScreen()
-            self.main.show()
+            import os
+            if os.path.exists("hariku.db"):
+                from .views import LoginScreen
+                self.main = LoginScreen()
+                self.main.show()
+            else:
+                from .views import RegisterScreen
+                self.main = RegisterScreen()
+                self.main.show()
 
             # CLOSE SPLASH SCREEN
             self.hide()

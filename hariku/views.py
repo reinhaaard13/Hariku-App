@@ -169,6 +169,10 @@ class RegisterScreen(QMainWindow):
         self.setMenuBar(self.menubar)
     
     def login(self):
+        from .database import register_user
+
+        register_user(bytes(self.pwLineEdit.text(),encoding='utf-8'))
+
         dialog = LoginScreen(self)
         dialog.show()
         self.hide()
@@ -252,9 +256,15 @@ class LoginScreen(QMainWindow):
         self.setMenuBar(self.menubar)
     
     def login(self):
-        dialog = HomeScreen(self)
-        dialog.show()
-        self.hide()
+        from .database import verify_user
+        if verify_user(bytes(self.pwLineEdit.text(),encoding='utf-8')):
+            dialog = HomeScreen(self)
+            dialog.show()
+            self.hide()
+        else:
+            self.pwLineEdit.setStyleSheet(Hariku_Style.get_wrong_lineedit_stylesheet())
+            self.pwLineEdit.setFocus()
+            self.pwLineEdit.selectAll()
 
 class HomeScreen(QMainWindow):
     def __init__(self, parent=None):
@@ -346,12 +356,40 @@ class DiaryScreen(QMainWindow):
         self.randomBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(24, 88, 191)","rgb(207, 207, 188)"))
         self.SideBar.addWidget(self.randomBtn)
 
-        self.playBtn = QPushButton("Play Music", self)
+        self.hlayout_music = QHBoxLayout()
+        self.hlayout_music.setObjectName("hlayout_music")
+
+        self.vl_down = QPushButton("-")
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.vl_down.setSizePolicy(sizePolicy)
+        self.vl_down.setMinimumSize(QtCore.QSize(20, 0))
+        self.vl_down.setFont(Hariku_Style.get_font(10))
+        self.vl_down.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(185, 150, 24)","rgb(207, 207, 188)"))
+        self.vl_down.setObjectName("vl_down")
+        self.hlayout_music.addWidget(self.vl_down)
+
+        self.playBtn = QPushButton("Play Music")
         self.playBtn.setFont(Hariku_Style.get_font(10))
-        # rgb(185, 150, 24)
-        # rgb(207, 207, 188)
         self.playBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(185, 150, 24)","rgb(207, 207, 188)"))
-        self.SideBar.addWidget(self.playBtn)
+        self.playBtn.setObjectName("playBtn")
+        self.hlayout_music.addWidget(self.playBtn)
+
+        self.vl_up = QPushButton("+")
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.vl_up.setSizePolicy(sizePolicy)
+        self.vl_up.setMinimumSize(QtCore.QSize(20, 0))
+        self.vl_up.setFont(Hariku_Style.get_font(10))
+        self.vl_up.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(185, 150, 24)","rgb(207, 207, 188)"))
+        self.vl_up.setObjectName("vl_up")
+        self.hlayout_music.addWidget(self.vl_up)
+        self.SideBar.addLayout(self.hlayout_music)
+
+        # self.playBtn = QPushButton("Play Music", self)
+        # self.playBtn.setFont(Hariku_Style.get_font(10))
+        # # rgb(185, 150, 24)
+        # # rgb(207, 207, 188)
+        # self.playBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(185, 150, 24)","rgb(207, 207, 188)"))
+        # self.SideBar.addWidget(self.playBtn)
 
         self.musicPlayer = QMediaPlayer(self)
         self.musicPlayer.setMedia(QMediaContent())
