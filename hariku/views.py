@@ -6,6 +6,8 @@ from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import (
     QAbstractItemView,
+    QDateEdit,
+    QDateTimeEdit,
     QDialog,
     QDialogButtonBox,
     QFormLayout,
@@ -14,6 +16,7 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QPushButton,
+    QSpinBox,
     QTableView,
     QLabel,
     QVBoxLayout,
@@ -24,7 +27,10 @@ from PyQt5.QtWidgets import (
     QTextEdit,
     QSpacerItem,
     QProgressBar,
-    QFrame
+    QFrame,
+    QGridLayout,
+    QComboBox,
+    QScrollArea
 )
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtCore import Qt, QRect, QTimer
@@ -289,7 +295,7 @@ class HomeScreen(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Home Screen")
-        self.resize(250, 150)
+        self.resize(505, 461)
         self.setStyleSheet(Hariku_Style.get_window_stylesheet())
         self.centralWidget = QWidget()
         self.setCentralWidget(self.centralWidget)
@@ -298,21 +304,100 @@ class HomeScreen(QMainWindow):
     
     def setupUI(self):
         self.centralwidget = QWidget(self)
-        self.verticalLayout = QVBoxLayout(self.centralwidget)
+        self.setFocus()
 
-        self.newBtn = QPushButton("New Diary",self.centralwidget)
+        self.gridLayout = QGridLayout(self.centralwidget)
+        self.gridLayout.setObjectName("gridLayout")
+
+        self.topcenter_layout = QHBoxLayout()
+
+        spacerItem = QSpacerItem(25, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)
+        self.topcenter_layout.addItem(spacerItem)
+
+        self.monthFilter = QDateEdit(self.centralwidget)
+        self.monthFilter.setCurrentSection(QDateTimeEdit.MonthSection)
+        self.monthFilter.setButtonSymbols(QSpinBox.NoButtons)
+        self.monthFilter.setDisplayFormat("MM/yyyy")
+        self.monthFilter.setFont(Hariku_Style.get_font(10))
+        self.monthFilter.setStyleSheet(Hariku_Style.get_dateedit_stylesheet())
+        self.topcenter_layout.addWidget(self.monthFilter)
+
+        spacerItem1 = QSpacerItem(25, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)
+        self.topcenter_layout.addItem(spacerItem1)
+
+        self.gridLayout.addLayout(self.topcenter_layout, 1, 0, 1, 1)
+
+        self.bottomLayout = QHBoxLayout()
+
+        spacerItem2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.bottomLayout.addItem(spacerItem2)
+
+        self.createBtn = QPushButton("+", self.centralwidget)
+        self.createBtn.setFont(Hariku_Style.get_font(12))
+        self.createBtn.clicked.connect(self.addNewDiary)
+        self.createBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(40, 186, 130)","rgb(207, 207, 188)"))
+        self.bottomLayout.addWidget(self.createBtn)
+
+        self.gridLayout.addLayout(self.bottomLayout, 4, 0, 1, 1)
+
+        self.contentScrollArea = QScrollArea(self.centralwidget)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.contentScrollArea.sizePolicy().hasHeightForWidth())
+        self.contentScrollArea.setSizePolicy(sizePolicy)
+        self.contentScrollArea.setStyleSheet(Hariku_Style.get_scrollarea_stylesheet())
+        self.contentScrollArea.setWidgetResizable(True)
+        self.contentScrollArea.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 487, 321))
+        self.scrollAreaLayout = QVBoxLayout(self.scrollAreaWidgetContents)
+        
+        self.diaryItem = QWidget(self.scrollAreaWidgetContents)
+        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        sizePolicy.setHeightForWidth(self.diaryItem.sizePolicy().hasHeightForWidth())
+        self.diaryItem.setSizePolicy(sizePolicy)
+        self.diaryItem.setMinimumSize(QtCore.QSize(0, 50))
+        self.diaryItem.setStyleSheet("background-color: rgba(227, 217, 163, 100%);\nborder-radius : 10px;")
+        self.diaryItem.setObjectName("diaryItem")
+        self.itemLayout = QGridLayout(self.diaryItem)
+
+        self.contentDateLayout = QVBoxLayout()
+        self.contentDateLayout.setObjectName("contentDateLayout")
+
+        self.content = QLabel("Content", self.diaryItem)
+        self.content.setFont(Hariku_Style.get_font(12))
+        self.contentDateLayout.addWidget(self.content)
+
+        self.date = QLabel("Date", self.diaryItem)
+        self.date.setFont(Hariku_Style.get_font(8))
+        self.contentDateLayout.addWidget(self.date)
+
+        self.itemLayout.addLayout(self.contentDateLayout, 0, 0, 1, 1)
+
+        self.viewBtn = QPushButton("⋗", self.diaryItem)
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.newBtn.sizePolicy().hasHeightForWidth())
-        self.newBtn.setSizePolicy(sizePolicy)
+        sizePolicy.setHeightForWidth(self.viewBtn.sizePolicy().hasHeightForWidth())
+        self.viewBtn.setSizePolicy(sizePolicy)
+        self.viewBtn.setFont(Hariku_Style.get_font(9))
+        # rgb(40, 186, 130)
+        # rgb(207, 207, 188)
+        self.viewBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(145, 133, 63)","rgb(235, 224, 157)"))
+        self.itemLayout.addWidget(self.viewBtn, 0, 1, 1, 1)
 
-        self.newBtn.setFont(Hariku_Style.get_font(10))
+        self.scrollAreaLayout.addWidget(self.diaryItem, alignment=QtCore.Qt.AlignTop)
 
-        self.newBtn.setStyleSheet(Hariku_Style.get_pushbutton_stylesheet())
-        self.verticalLayout.addWidget(self.newBtn, 0, Qt.AlignHCenter)
+        self.contentScrollArea.setWidget(self.scrollAreaWidgetContents)
 
-        self.newBtn.clicked.connect(self.addNewDiary)
+        self.gridLayout.addWidget(self.contentScrollArea, 2, 0, 1, 1)
+        
+        self.judul = QLabel("Welcome Home:)",self)
+        self.judul.setFont(Hariku_Style.get_font(16))
+        self.judul.setAlignment(QtCore.Qt.AlignCenter)
+        self.gridLayout.addWidget(self.judul, 0, 0, 1, 1)
 
         self.setCentralWidget(self.centralwidget)
 
