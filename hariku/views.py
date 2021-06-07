@@ -241,6 +241,8 @@ class LoginScreen(QMainWindow):
 
         self.verticalLayout_2.addWidget(self.pwLineEdit, 0, Qt.AlignHCenter)
 
+        self.tryAgainLabel = None
+
         self.loginBtn = QPushButton("Login",self.centralwidget)
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -269,6 +271,16 @@ class LoginScreen(QMainWindow):
             dialog.show()
             self.hide()
         else:
+            if not self.tryAgainLabel:
+                self.tryAgainLabel = QLabel("Wrong Password! Try again")
+                self.tryAgainLabel.setFont(Hariku_Style.get_font(8))
+                sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+                sizePolicy.setHorizontalStretch(0)
+                sizePolicy.setVerticalStretch(0)
+                sizePolicy.setHeightForWidth(self.tryAgainLabel.sizePolicy().hasHeightForWidth())
+                self.tryAgainLabel.setSizePolicy(sizePolicy)
+                self.tryAgainLabel.setStyleSheet("QLabel {color: red;}")
+                self.verticalLayout_2.insertWidget(2, self.tryAgainLabel, alignment=Qt.AlignHCenter)
             self.pwLineEdit.setStyleSheet(Hariku_Style.get_wrong_lineedit_stylesheet())
             self.pwLineEdit.setFocus()
             self.pwLineEdit.selectAll()
