@@ -1,3 +1,5 @@
+import json
+import random
 from hariku.mediaplayer import MediaPlayer
 from threading import Thread
 from PyQt5 import QtGui
@@ -146,6 +148,7 @@ class RegisterScreen(QMainWindow):
         self.pwLineEdit.setAlignment(Qt.AlignCenter)
         self.pwLineEdit.setCursorMoveStyle(Qt.LogicalMoveStyle)
         self.pwLineEdit.setClearButtonEnabled(False)
+        self.pwLineEdit.setFocus()
 
         self.verticalLayout_2.addWidget(self.pwLineEdit, 0, Qt.AlignHCenter)
 
@@ -158,6 +161,7 @@ class RegisterScreen(QMainWindow):
         self.loginBtn.setFont(Hariku_Style.get_font(10))
         self.loginBtn.setStyleSheet(Hariku_Style.get_pushbutton_stylesheet())
         self.verticalLayout_2.addWidget(self.loginBtn, 0, Qt.AlignHCenter)
+        self.pwLineEdit.returnPressed.connect(self.loginBtn.click)
 
         self.loginBtn.clicked.connect(self.login)
 
@@ -223,7 +227,7 @@ class LoginScreen(QMainWindow):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pwLineEdit.sizePolicy().hasHeightForWidth())
         self.pwLineEdit.setSizePolicy(sizePolicy)
-
+        
         self.pwLineEdit.setFont(Hariku_Style.get_font(10))
         self.pwLineEdit.setStyleSheet(Hariku_Style.get_lineedit_stylesheet())
 
@@ -233,6 +237,7 @@ class LoginScreen(QMainWindow):
         self.pwLineEdit.setAlignment(Qt.AlignCenter)
         self.pwLineEdit.setCursorMoveStyle(Qt.LogicalMoveStyle)
         self.pwLineEdit.setClearButtonEnabled(False)
+        self.pwLineEdit.setFocus()
 
         self.verticalLayout_2.addWidget(self.pwLineEdit, 0, Qt.AlignHCenter)
 
@@ -245,6 +250,7 @@ class LoginScreen(QMainWindow):
         self.loginBtn.setFont(Hariku_Style.get_font(10))
         self.loginBtn.setStyleSheet(Hariku_Style.get_pushbutton_stylesheet())
         self.verticalLayout_2.addWidget(self.loginBtn, 0, Qt.AlignHCenter)
+        self.pwLineEdit.returnPressed.connect(self.loginBtn.click)
 
         self.loginBtn.clicked.connect(self.login)
 
@@ -343,9 +349,9 @@ class DiaryScreen(QMainWindow):
         self.mood = Mood()
 
         # Timer for refreshing mood score
-        mood_timer = QTimer(self)
-        mood_timer.timeout.connect(lambda: self.mood.count_mood(self.diaryArea.toPlainText()))
-        mood_timer.start(5000)
+        self.mood_timer = QTimer(self)
+        self.mood_timer.timeout.connect(lambda: self.mood.count_mood(self.diaryArea.toPlainText()))
+        self.mood_timer.start(5000)
 
         spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.SideBar.addItem(spacerItem)
@@ -355,6 +361,7 @@ class DiaryScreen(QMainWindow):
         # rgb(24, 88, 191)
         # rgb(207, 207, 188)
         self.randomBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(24, 88, 191)","rgb(207, 207, 188)"))
+        self.randomBtn.clicked.connect(self.generateRandomQuestion)
         self.SideBar.addWidget(self.randomBtn)
 
         # Create Music Player
@@ -428,6 +435,13 @@ class DiaryScreen(QMainWindow):
 
     def exit(self):
         self.player.stop()
+        self.mood_timer.stop()
         dialog = HomeScreen(self)
         dialog.show()
         self.hide()
+
+    def generateRandomQuestion(self):
+        with open('hariku/questions.json',) as question:
+            choices = json.load(question)
+            question = random.choice(choices['questions'])
+            self.diaryArea.insertPlainText(f" [ {question} ] \n")

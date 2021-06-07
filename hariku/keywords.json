@@ -13,7 +13,9 @@
     "hebat",
     "menyenangkan",
     "asyik",
-    "seru"
+    "seru",
+    "beruntung",
+    "hoki"
   ],
   "negative": [
     "tidak",
@@ -32,6 +34,7 @@
     "menyedihkan",
     "kecewa",
     "mengecewakan",
-    "dikecewakan"
+    "dikecewakan",
+    "sial"
   ]
 }

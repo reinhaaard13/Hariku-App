@@ -5,7 +5,7 @@ import bcrypt
 from sqlalchemy.sql.expression import select
 
 Base = declarative_base()
-engine = create_engine("sqlite:///hariku.db", echo=True)
+engine = create_engine("sqlite:///hariku.db")
 Session = orm.sessionmaker(bind=engine)
 session = Session()
 

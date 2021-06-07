@@ -16,6 +16,6 @@ def create_app():
 
 def checkNewUser():
     if os.path.exists("hariku.db"):
-        print("found")
+        print("Database found!")
     else:
-        print('not found')
+        print('Database not found!')
