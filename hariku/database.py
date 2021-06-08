@@ -35,4 +35,14 @@ def verify_user(password):
     else:
         return False
 
+def addDiary(date, time, content, mood_score):
+    diary = Diary(
+        date=date,
+        time=time,
+        content=content,
+        mood_score=mood_score
+    )
+    session.add(diary)
+    session.commit()
+
 Base.metadata.create_all(engine)

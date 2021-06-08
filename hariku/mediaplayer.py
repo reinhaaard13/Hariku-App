@@ -76,3 +76,6 @@ class MediaPlayer(QMediaPlayer):
                 print('Mood Refreshed!')
         else:
             return
+
+    def getMoodScore(self):
+        return self.mood.score

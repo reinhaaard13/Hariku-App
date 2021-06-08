@@ -448,8 +448,6 @@ class DiaryScreen(QMainWindow):
 
         self.randomBtn = QPushButton("Generate Random Question", self)
         self.randomBtn.setFont(Hariku_Style.get_font(10))
-        # rgb(24, 88, 191)
-        # rgb(207, 207, 188)
         self.randomBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(24, 88, 191)","rgb(207, 207, 188)"))
         self.randomBtn.clicked.connect(self.generateRandomQuestion)
         self.SideBar.addWidget(self.randomBtn)
@@ -538,7 +536,15 @@ class DiaryScreen(QMainWindow):
         self.hide()
 
     def saveDiary(self):
-        self.player.changeSong('high')
+        from .database import addDiary
+        if not self.diaryArea.toPlainText():
+            return
+        date = datetime.now().date()
+        time = datetime.now().time()
+        content = self.diaryArea.toPlainText()
+        mood_score = self.player.getMoodScore()
+        addDiary(date, time, content, mood_score)
+        self.exit()
 
     def generateRandomQuestion(self):
         with open('hariku/questions.json',) as question:
