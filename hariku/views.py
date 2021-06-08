@@ -443,13 +443,6 @@ class DiaryScreen(QMainWindow):
         timer.timeout.connect(self.showTime)
         timer.start(1000)
 
-        self.mood = Mood()
-
-        # Timer for refreshing mood score
-        self.mood_timer = QTimer(self)
-        self.mood_timer.timeout.connect(lambda: self.mood.count_mood(self.diaryArea.toPlainText()))
-        self.mood_timer.start(5000)
-
         spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.SideBar.addItem(spacerItem)
 
@@ -511,6 +504,7 @@ class DiaryScreen(QMainWindow):
         self.saveBtn = QPushButton("Save Diary", self)
         self.saveBtn.setFont(Hariku_Style.get_font(10))
         self.saveBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(40, 186, 130)","rgb(207, 207, 188)"))
+        self.saveBtn.clicked.connect(self.saveDiary)
         self.hlayout_save.addWidget(self.saveBtn)
 
         self.SideBar.addLayout(self.hlayout_save)
@@ -519,9 +513,15 @@ class DiaryScreen(QMainWindow):
         self.diaryArea = QTextEdit(self)
         self.diaryArea.setFont(Hariku_Style.get_font(10))
         self.diaryArea.setStyleSheet(Hariku_Style.get_diary_textarea_stylesheet())
+        self.diaryArea.setFocus()
         self.horizontalLayout.addWidget(self.diaryArea)
         
         self.setCentralWidget(self.centralwidget)
+
+        # Timer for refreshing mood score
+        self.mood_timer = QTimer(self)
+        self.mood_timer.timeout.connect(lambda: self.player.reviewMood(self.diaryArea.toPlainText()))
+        self.mood_timer.start(10000)
 
     def showTime(self):
         current_time = datetime.now().strftime("%I:%M:%S %p")
@@ -536,6 +536,9 @@ class DiaryScreen(QMainWindow):
         dialog = HomeScreen(self)
         dialog.show()
         self.hide()
+
+    def saveDiary(self):
+        self.player.changeSong('high')
 
     def generateRandomQuestion(self):
         with open('hariku/questions.json',) as question:
