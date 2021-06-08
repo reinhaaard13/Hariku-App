@@ -294,7 +294,7 @@ class LoginScreen(QMainWindow):
             self.pwLineEdit.setFocus()
             self.pwLineEdit.selectAll()
 
-from .database import getAllDiaries, getDiaryById
+from .database import getAllDiaries, getDiaryById, getDiaryByMonth
 
 class HomeScreen(QMainWindow):
     def __init__(self, parent=None):
@@ -324,9 +324,11 @@ class HomeScreen(QMainWindow):
         self.monthFilter = QDateEdit(self.centralwidget)
         self.monthFilter.setCurrentSection(QDateTimeEdit.MonthSection)
         self.monthFilter.setButtonSymbols(QSpinBox.NoButtons)
-        self.monthFilter.setDisplayFormat("MM/yyyy")
+        self.monthFilter.setDate(datetime.now())
+        self.monthFilter.setDisplayFormat("MMMM/yyyy")
         self.monthFilter.setFont(Hariku_Style.get_font(10))
         self.monthFilter.setStyleSheet(Hariku_Style.get_dateedit_stylesheet())
+        self.monthFilter.dateChanged.connect(self.filterDiaryByMonth)
         self.topcenter_layout.addWidget(self.monthFilter)
 
         spacerItem1 = QSpacerItem(25, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)
@@ -364,8 +366,8 @@ class HomeScreen(QMainWindow):
 
         self.getDiaries()
 
-        spacerItem2 = QSpacerItem(20, 40, QSizePolicy.Minimum , QSizePolicy.MinimumExpanding)
-        self.scrollAreaLayout.addItem(spacerItem2)
+        # spacerItem2 = QSpacerItem(20, 40, QSizePolicy.Minimum , QSizePolicy.MinimumExpanding)
+        # self.scrollAreaLayout.addItem(spacerItem2)
 
         self.contentScrollArea.setWidget(self.scrollAreaWidgetContents)
 
@@ -382,6 +384,59 @@ class HomeScreen(QMainWindow):
         dialog = DiaryScreen(self)
         dialog.show()
         self.hide()
+
+    def filterDiaryByMonth(self):
+        # delete the diaries currently showind
+        for i in reversed(range(self.scrollAreaLayout.count())):
+            try:
+                self.scrollAreaLayout.itemAt(i).widget().setParent(None)
+            except AttributeError:
+                self.scrollAreaLayout.removeItem(self.scrollAreaLayout.itemAt(i))
+
+        year = self.monthFilter.date().year()
+        month = self.monthFilter.date().month()
+
+        diaries = getDiaryByMonth(year, month)
+
+        for diary in diaries:
+            self.diaryItem = QWidget(self.scrollAreaWidgetContents)
+            sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+            sizePolicy.setHeightForWidth(self.diaryItem.sizePolicy().hasHeightForWidth())
+            self.diaryItem.setSizePolicy(sizePolicy)
+            self.diaryItem.setMinimumSize(QtCore.QSize(0, 50))
+            self.diaryItem.setStyleSheet("background-color: rgba(227, 217, 163, 100%);\nborder-radius : 10px;")
+            self.diaryItem.setObjectName("diaryItem")
+            self.itemLayout = QGridLayout(self.diaryItem)
+
+            self.contentDateLayout = QVBoxLayout()
+            self.contentDateLayout.setObjectName("contentDateLayout")
+
+            self.content = QLabel(self.truncateString(diary.content), self.diaryItem)
+            self.content.setFont(Hariku_Style.get_font(10))
+            self.contentDateLayout.addWidget(self.content)
+
+            self.date = QLabel(diary.date.strftime("%d %B %Y") + diary.time.strftime("  %I:%M %p"), self.diaryItem)
+            self.date.setFont(Hariku_Style.get_font(8))
+            self.contentDateLayout.addWidget(self.date)
+
+            self.itemLayout.addLayout(self.contentDateLayout, 0, 0, 1, 1)
+
+            self.viewBtn = QPushButton("⋗", self.diaryItem)
+            self.viewBtn.clicked.connect(lambda: self.viewDiaryById(diary.diary_id))
+            sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            sizePolicy.setHorizontalStretch(0)
+            sizePolicy.setVerticalStretch(0)
+            sizePolicy.setHeightForWidth(self.viewBtn.sizePolicy().hasHeightForWidth())
+            self.viewBtn.setSizePolicy(sizePolicy)
+            self.viewBtn.setFont(Hariku_Style.get_font(9))
+            self.viewBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(145, 133, 63)","rgb(235, 224, 157)"))
+            self.itemLayout.addWidget(self.viewBtn, 0, 1, 1, 1)
+
+            self.scrollAreaLayout.addWidget(self.diaryItem, alignment=QtCore.Qt.AlignTop)
+        
+        spacerItem2 = QSpacerItem(20, 40, QSizePolicy.Minimum , QSizePolicy.MinimumExpanding)
+        self.scrollAreaLayout.addItem(spacerItem2)
+
 
     def getDiaries(self):
         diaries = getAllDiaries()
@@ -421,6 +476,10 @@ class HomeScreen(QMainWindow):
             self.itemLayout.addWidget(self.viewBtn, 0, 1, 1, 1)
 
             self.scrollAreaLayout.addWidget(self.diaryItem, alignment=QtCore.Qt.AlignTop)
+
+        spacerItem2 = QSpacerItem(20, 40, QSizePolicy.Minimum , QSizePolicy.MinimumExpanding)
+        self.scrollAreaLayout.addItem(spacerItem2)
+
 
     def truncateString(self, string):
         try:

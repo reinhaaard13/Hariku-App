@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, create_engine, orm, exc, Date, Time, asc, desc
+from sqlalchemy import Column, Integer, String, create_engine, orm, exc, Date, Time, extract
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import session
 import bcrypt
@@ -51,6 +51,9 @@ def getAllDiaries():
 
 def getDiaryById(id):
     return session.query(Diary).filter(Diary.diary_id == id).first()
+
+def getDiaryByMonth(year, month):
+    return session.query(Diary).filter(extract('year', Diary.date) == year).filter(extract('month', Diary.date) == month).all()
 
 if __name__ == "__main__":
     pass
