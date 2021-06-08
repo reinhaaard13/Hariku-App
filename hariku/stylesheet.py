@@ -1,4 +1,4 @@
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon, QPixmap
 
 class Hariku_Style:
 
@@ -202,9 +202,10 @@ class Hariku_Style:
         
     def get_scrollarea_stylesheet():
         return """
-        QScrollArea{    
+        QScrollArea{	
             border-radius: 0;
         }
+
         QScrollArea QWidget{   
             background-color:rgb(227, 227, 206);
             color:black;
@@ -218,17 +219,18 @@ class Hariku_Style:
             border-radius: 0px;
         }
         /*  HANDLE BAR VERTICAL */
-        QScrollBar::handle:vertical {    
+        QScrollBar::handle:vertical {	
             background-color: rgb(118, 97, 97);
             min-height: 30px;
             border-radius: 7px;
         }
-        QScrollBar::handle:vertical:hover{    
+        QScrollBar::handle:vertical:hover{	
             background-color: rgb(81, 196, 211);
         }
-        QScrollBar::handle:vertical:pressed {    
+        QScrollBar::handle:vertical:pressed {	
             background-color: rgb(18, 110, 130);
         }
+
         /* BTN TOP - SCROLLBAR */
         QScrollBar::sub-line:vertical {
             border: none;
@@ -239,12 +241,13 @@ class Hariku_Style:
             subcontrol-position: top;
             subcontrol-origin: margin;
         }
-        QScrollBar::sub-line:vertical:hover {    
+        QScrollBar::sub-line:vertical:hover {	
             background-color: rgb(81, 196, 211);
         }
-        QScrollBar::sub-line:vertical:pressed {    
+        QScrollBar::sub-line:vertical:pressed {	
             background-color: rgb(18, 110, 130);
         }
+
         /* BTN BOTTOM - SCROLLBAR */
         QScrollBar::add-line:vertical {
             border: none;
@@ -255,12 +258,13 @@ class Hariku_Style:
             subcontrol-position: bottom;
             subcontrol-origin: margin;
         }
-        QScrollBar::add-line:vertical:hover {    
+        QScrollBar::add-line:vertical:hover {	
             background-color:rgb(81, 196, 211);
         }
-        QScrollBar::add-line:vertical:pressed {    
+        QScrollBar::add-line:vertical:pressed {	
             background-color: rgb(18, 110, 130);
         }
+
         /* RESET ARROW */
         QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
             background: none;
@@ -300,3 +304,8 @@ class Hariku_Style:
             background-color: rgba(0,0,0,50%);
         }
         """
+
+    def getIcon():
+        icon = QIcon()
+        icon.addPixmap(QPixmap("assets/Hariku-logo.png"), QIcon.Normal, QIcon.Off)
+        return icon

@@ -1,5 +1,8 @@
 import json
+from os import terminal_size
 import random
+
+from sqlalchemy.sql.expression import false
 from hariku.mediaplayer import MediaPlayer
 from threading import Thread
 from PyQt5 import QtGui
@@ -291,6 +294,8 @@ class LoginScreen(QMainWindow):
             self.pwLineEdit.setFocus()
             self.pwLineEdit.selectAll()
 
+from .database import getAllDiaries, getDiaryById
+
 class HomeScreen(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -303,6 +308,8 @@ class HomeScreen(QMainWindow):
         self.setupUI()
     
     def setupUI(self):
+        self.setWindowIcon(Hariku_Style.getIcon())
+
         self.centralwidget = QWidget(self)
         self.setFocus()
 
@@ -341,6 +348,7 @@ class HomeScreen(QMainWindow):
         self.gridLayout.addLayout(self.bottomLayout, 4, 0, 1, 1)
 
         self.contentScrollArea = QScrollArea(self.centralwidget)
+        self.contentScrollArea.setEnabled(True)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -353,42 +361,11 @@ class HomeScreen(QMainWindow):
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 487, 321))
         self.scrollAreaLayout = QVBoxLayout(self.scrollAreaWidgetContents)
-        
-        self.diaryItem = QWidget(self.scrollAreaWidgetContents)
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        sizePolicy.setHeightForWidth(self.diaryItem.sizePolicy().hasHeightForWidth())
-        self.diaryItem.setSizePolicy(sizePolicy)
-        self.diaryItem.setMinimumSize(QtCore.QSize(0, 50))
-        self.diaryItem.setStyleSheet("background-color: rgba(227, 217, 163, 100%);\nborder-radius : 10px;")
-        self.diaryItem.setObjectName("diaryItem")
-        self.itemLayout = QGridLayout(self.diaryItem)
 
-        self.contentDateLayout = QVBoxLayout()
-        self.contentDateLayout.setObjectName("contentDateLayout")
+        self.getDiaries()
 
-        self.content = QLabel("Content", self.diaryItem)
-        self.content.setFont(Hariku_Style.get_font(12))
-        self.contentDateLayout.addWidget(self.content)
-
-        self.date = QLabel("Date", self.diaryItem)
-        self.date.setFont(Hariku_Style.get_font(8))
-        self.contentDateLayout.addWidget(self.date)
-
-        self.itemLayout.addLayout(self.contentDateLayout, 0, 0, 1, 1)
-
-        self.viewBtn = QPushButton("⋗", self.diaryItem)
-        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.viewBtn.sizePolicy().hasHeightForWidth())
-        self.viewBtn.setSizePolicy(sizePolicy)
-        self.viewBtn.setFont(Hariku_Style.get_font(9))
-        # rgb(40, 186, 130)
-        # rgb(207, 207, 188)
-        self.viewBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(145, 133, 63)","rgb(235, 224, 157)"))
-        self.itemLayout.addWidget(self.viewBtn, 0, 1, 1, 1)
-
-        self.scrollAreaLayout.addWidget(self.diaryItem, alignment=QtCore.Qt.AlignTop)
+        spacerItem2 = QSpacerItem(20, 40, QSizePolicy.Minimum , QSizePolicy.MinimumExpanding)
+        self.scrollAreaLayout.addItem(spacerItem2)
 
         self.contentScrollArea.setWidget(self.scrollAreaWidgetContents)
 
@@ -406,11 +383,59 @@ class HomeScreen(QMainWindow):
         dialog.show()
         self.hide()
 
-from .moodselect import Mood
+    def getDiaries(self):
+        diaries = getAllDiaries()
+
+        for diary in diaries:
+            self.diaryItem = QWidget(self.scrollAreaWidgetContents)
+            sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+            sizePolicy.setHeightForWidth(self.diaryItem.sizePolicy().hasHeightForWidth())
+            self.diaryItem.setSizePolicy(sizePolicy)
+            self.diaryItem.setMinimumSize(QtCore.QSize(0, 50))
+            self.diaryItem.setStyleSheet("background-color: rgba(227, 217, 163, 100%);\nborder-radius : 10px;")
+            self.diaryItem.setObjectName("diaryItem")
+            self.itemLayout = QGridLayout(self.diaryItem)
+
+            self.contentDateLayout = QVBoxLayout()
+            self.contentDateLayout.setObjectName("contentDateLayout")
+
+            self.content = QLabel(self.truncateString(diary.content), self.diaryItem)
+            self.content.setFont(Hariku_Style.get_font(10))
+            self.contentDateLayout.addWidget(self.content)
+
+            self.date = QLabel(diary.date.strftime("%d %B %Y") + diary.time.strftime("  %I:%M %p"), self.diaryItem)
+            self.date.setFont(Hariku_Style.get_font(8))
+            self.contentDateLayout.addWidget(self.date)
+
+            self.itemLayout.addLayout(self.contentDateLayout, 0, 0, 1, 1)
+
+            self.viewBtn = QPushButton("⋗", self.diaryItem)
+            self.viewBtn.clicked.connect(lambda: self.viewDiaryById(diary.diary_id))
+            sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            sizePolicy.setHorizontalStretch(0)
+            sizePolicy.setVerticalStretch(0)
+            sizePolicy.setHeightForWidth(self.viewBtn.sizePolicy().hasHeightForWidth())
+            self.viewBtn.setSizePolicy(sizePolicy)
+            self.viewBtn.setFont(Hariku_Style.get_font(9))
+            self.viewBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(145, 133, 63)","rgb(235, 224, 157)"))
+            self.itemLayout.addWidget(self.viewBtn, 0, 1, 1, 1)
+
+            self.scrollAreaLayout.addWidget(self.diaryItem, alignment=QtCore.Qt.AlignTop)
+
+    def truncateString(self, string):
+        try:
+            return string[:45] + '...'
+        except IndexError:
+            return string
+
+    def viewDiaryById(self, id):
+        dialog = DiaryScreen(self, edit=False, id=id)
+        dialog.show()
+        self.hide()
 
 class DiaryScreen(QMainWindow):
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, edit=True, id=None):
         super().__init__(parent)
         self.setWindowTitle("Add Diary")
         self.resize(642, 379)
@@ -419,9 +444,11 @@ class DiaryScreen(QMainWindow):
         self.setCentralWidget(self.centralWidget)
         self.timestamp = datetime.now()
 
-        self.setupUI()
+        self.setupUI(edit, id)
 
-    def setupUI(self):
+    def setupUI(self, edit=True, id=None):
+        self.setWindowIcon(Hariku_Style.getIcon())
+
         self.centralwidget = QWidget(self)
 
         self.horizontalLayout = QHBoxLayout(self.centralwidget)
@@ -436,21 +463,15 @@ class DiaryScreen(QMainWindow):
         self.clock.setFont(Hariku_Style.get_font(20))
         self.SideBar.addWidget(self.clock)
 
-        # creating a timer object
-        # adding action to timer
-        # update the timer every second
-        timer = QTimer(self)
-        timer.timeout.connect(self.showTime)
-        timer.start(1000)
-
         spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.SideBar.addItem(spacerItem)
 
-        self.randomBtn = QPushButton("Generate Random Question", self)
-        self.randomBtn.setFont(Hariku_Style.get_font(10))
-        self.randomBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(24, 88, 191)","rgb(207, 207, 188)"))
-        self.randomBtn.clicked.connect(self.generateRandomQuestion)
-        self.SideBar.addWidget(self.randomBtn)
+        if edit == True:
+            self.randomBtn = QPushButton("Generate Random Question", self)
+            self.randomBtn.setFont(Hariku_Style.get_font(10))
+            self.randomBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(24, 88, 191)","rgb(207, 207, 188)"))
+            self.randomBtn.clicked.connect(self.generateRandomQuestion)
+            self.SideBar.addWidget(self.randomBtn)
 
         # Create Music Player
         self.hlayout_music = QHBoxLayout()
@@ -499,11 +520,12 @@ class DiaryScreen(QMainWindow):
         self.hlayout_save.addWidget(self.exitBtn)
         self.exitBtn.clicked.connect(self.exit)
 
-        self.saveBtn = QPushButton("Save Diary", self)
-        self.saveBtn.setFont(Hariku_Style.get_font(10))
-        self.saveBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(40, 186, 130)","rgb(207, 207, 188)"))
-        self.saveBtn.clicked.connect(self.saveDiary)
-        self.hlayout_save.addWidget(self.saveBtn)
+        if edit == True:
+            self.saveBtn = QPushButton("Save Diary", self)
+            self.saveBtn.setFont(Hariku_Style.get_font(10))
+            self.saveBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(40, 186, 130)","rgb(207, 207, 188)"))
+            self.saveBtn.clicked.connect(self.saveDiary)
+            self.hlayout_save.addWidget(self.saveBtn)
 
         self.SideBar.addLayout(self.hlayout_save)
         self.horizontalLayout.addLayout(self.SideBar)
@@ -512,14 +534,26 @@ class DiaryScreen(QMainWindow):
         self.diaryArea.setFont(Hariku_Style.get_font(10))
         self.diaryArea.setStyleSheet(Hariku_Style.get_diary_textarea_stylesheet())
         self.diaryArea.setFocus()
+        self.diaryArea.setReadOnly(True) if edit == False else self.diaryArea.setReadOnly(False)
         self.horizontalLayout.addWidget(self.diaryArea)
         
         self.setCentralWidget(self.centralwidget)
 
-        # Timer for refreshing mood score
-        self.mood_timer = QTimer(self)
-        self.mood_timer.timeout.connect(lambda: self.player.reviewMood(self.diaryArea.toPlainText()))
-        self.mood_timer.start(10000)
+        if edit == True:
+            # creating a timer object
+            # adding action to timer
+            # update the timer every second
+            timer = QTimer(self)
+            timer.timeout.connect(self.showTime)
+            timer.start(1000)
+
+            # Timer for refreshing mood score
+            self.mood_timer = QTimer(self)
+            self.mood_timer.timeout.connect(lambda: self.player.reviewMood(self.diaryArea.toPlainText()))
+            self.mood_timer.start(10000)
+
+        elif edit == False:
+            self.viewPrefilledDiary(id)
 
     def showTime(self):
         current_time = datetime.now().strftime("%I:%M:%S %p")
@@ -529,8 +563,11 @@ class DiaryScreen(QMainWindow):
         self.playBtn.setText(self.player.togglePlay())
 
     def exit(self):
-        self.player.stop()
-        self.mood_timer.stop()
+        try:
+            self.player.stop()
+            self.mood_timer.stop()
+        except AttributeError:
+            pass
         dialog = HomeScreen(self)
         dialog.show()
         self.hide()
@@ -551,3 +588,9 @@ class DiaryScreen(QMainWindow):
             choices = json.load(question)
             question = random.choice(choices['questions'])
             self.diaryArea.insertPlainText(f" [ {question} ] \n")
+
+    def viewPrefilledDiary(self, id):
+        diary = getDiaryById(id)
+        self.clock.setText(diary.time.strftime("%I:%M:%S %p"))
+        self.date.setText(diary.date.strftime("%A, %B %e, %Y"))
+        self.diaryArea.setText(diary.content)

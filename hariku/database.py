@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, create_engine, orm, exc, Date, Time
+from sqlalchemy import Column, Integer, String, create_engine, orm, exc, Date, Time, asc, desc
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import session
 import bcrypt
@@ -23,6 +23,7 @@ class Diary(Base):
     mood_score = Column(Integer)
 
 def register_user(password):
+    Base.metadata.create_all(engine)
     pwd_hashed = bcrypt.hashpw(password, bcrypt.gensalt())
 
     user = User(password=pwd_hashed)
@@ -45,4 +46,11 @@ def addDiary(date, time, content, mood_score):
     session.add(diary)
     session.commit()
 
-Base.metadata.create_all(engine)
+def getAllDiaries():
+    return session.query(Diary).order_by(Diary.date).all()
+
+def getDiaryById(id):
+    return session.query(Diary).filter(Diary.diary_id == id).first()
+
+if __name__ == "__main__":
+    pass
