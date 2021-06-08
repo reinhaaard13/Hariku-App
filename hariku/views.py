@@ -294,7 +294,7 @@ class LoginScreen(QMainWindow):
             self.pwLineEdit.setFocus()
             self.pwLineEdit.selectAll()
 
-from .database import getAllDiaries, getDiaryById, getDiaryByMonth
+from .database import deleteDiaryById, getAllDiaries, getDiaryById, getDiaryByMonth
 
 class HomeScreen(QMainWindow):
     def __init__(self, parent=None):
@@ -341,8 +341,8 @@ class HomeScreen(QMainWindow):
         spacerItem2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.bottomLayout.addItem(spacerItem2)
 
-        self.createBtn = QPushButton("+", self.centralwidget)
-        self.createBtn.setFont(Hariku_Style.get_font(12))
+        self.createBtn = QPushButton("+ Add New Diary", self.centralwidget)
+        self.createBtn.setFont(Hariku_Style.get_font(10))
         self.createBtn.clicked.connect(self.addNewDiary)
         self.createBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(40, 186, 130)","rgb(207, 207, 188)"))
         self.bottomLayout.addWidget(self.createBtn)
@@ -385,13 +385,16 @@ class HomeScreen(QMainWindow):
         dialog.show()
         self.hide()
 
-    def filterDiaryByMonth(self):
+    def clearScrollAreaLayout(self):
         # delete the diaries currently showind
         for i in reversed(range(self.scrollAreaLayout.count())):
             try:
                 self.scrollAreaLayout.itemAt(i).widget().setParent(None)
             except AttributeError:
                 self.scrollAreaLayout.removeItem(self.scrollAreaLayout.itemAt(i))
+
+    def filterDiaryByMonth(self):
+        self.clearScrollAreaLayout()
 
         year = self.monthFilter.date().year()
         month = self.monthFilter.date().month()
@@ -441,7 +444,9 @@ class HomeScreen(QMainWindow):
     def getDiaries(self):
         diaries = getAllDiaries()
 
-        for diary in diaries:
+        self.buttons = []
+
+        for i, diary in enumerate(diaries):
             self.diaryItem = QWidget(self.scrollAreaWidgetContents)
             sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
             sizePolicy.setHeightForWidth(self.diaryItem.sizePolicy().hasHeightForWidth())
@@ -464,16 +469,29 @@ class HomeScreen(QMainWindow):
 
             self.itemLayout.addLayout(self.contentDateLayout, 0, 0, 1, 1)
 
-            self.viewBtn = QPushButton("⋗", self.diaryItem)
-            self.viewBtn.clicked.connect(lambda: self.viewDiaryById(diary.diary_id))
+            self.buttons.append(i)
+            self.buttons[i] = [QPushButton("⋗", self.diaryItem),QPushButton("×", self.diaryItem)]
+
+            self.buttons[i][0].clicked.connect(lambda checked, i=diary.diary_id: self.viewDiaryById(i))
             sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
             sizePolicy.setHorizontalStretch(0)
             sizePolicy.setVerticalStretch(0)
-            sizePolicy.setHeightForWidth(self.viewBtn.sizePolicy().hasHeightForWidth())
-            self.viewBtn.setSizePolicy(sizePolicy)
-            self.viewBtn.setFont(Hariku_Style.get_font(9))
-            self.viewBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(145, 133, 63)","rgb(235, 224, 157)"))
-            self.itemLayout.addWidget(self.viewBtn, 0, 1, 1, 1)
+            sizePolicy.setHeightForWidth(self.buttons[i][0].sizePolicy().hasHeightForWidth())
+            self.buttons[i][0].setSizePolicy(sizePolicy)
+            self.buttons[i][0].setFont(Hariku_Style.get_font(9))
+            self.buttons[i][0].setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(145, 133, 63)","rgb(235, 224, 157)"))
+            self.itemLayout.addWidget(self.buttons[i][0], 0, 1, 1, 1)
+
+            # self.deleteBtn = QPushButton("×", self.diaryItem)
+            self.buttons[i][1].clicked.connect(lambda checked, i=diary.diary_id: self.deleteDiaryById(i))
+            sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            sizePolicy.setHorizontalStretch(0)
+            sizePolicy.setVerticalStretch(0)
+            sizePolicy.setHeightForWidth(self.buttons[i][1].sizePolicy().hasHeightForWidth())
+            self.buttons[i][1].setSizePolicy(sizePolicy)
+            self.buttons[i][1].setFont(Hariku_Style.get_font(9))
+            self.buttons[i][1].setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(145, 63, 63)","rgb(235, 157, 157)"))
+            self.itemLayout.addWidget(self.buttons[i][1], 0, 2, 1, 1)
 
             self.scrollAreaLayout.addWidget(self.diaryItem, alignment=QtCore.Qt.AlignTop)
 
@@ -483,6 +501,7 @@ class HomeScreen(QMainWindow):
 
     def truncateString(self, string):
         try:
+            string = string.replace('\n',' ')
             return string[:45] + '...'
         except IndexError:
             return string
@@ -491,6 +510,11 @@ class HomeScreen(QMainWindow):
         dialog = DiaryScreen(self, edit=False, id=id)
         dialog.show()
         self.hide()
+
+    def deleteDiaryById(self, id):
+        deleteDiaryById(id)
+        self.clearScrollAreaLayout()
+        self.getDiaries()
 
 class DiaryScreen(QMainWindow):
     

@@ -55,5 +55,10 @@ def getDiaryById(id):
 def getDiaryByMonth(year, month):
     return session.query(Diary).filter(extract('year', Diary.date) == year).filter(extract('month', Diary.date) == month).all()
 
+def deleteDiaryById(id):
+    session.query(Diary).filter(Diary.diary_id == id).delete()
+    session.commit()
+    return True
+
 if __name__ == "__main__":
     pass
