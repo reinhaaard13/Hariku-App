@@ -35,14 +35,14 @@ class MediaPlayer(QMediaPlayer):
 
     def fadeOut(self):
         while self.volume() > 0:
-            self.changeVolumeBy(-4)
+            self.changeVolumeBy(-5)
             time.sleep(0.2)
         self.stop()
 
     def fadeIn(self, volume):
         self.play()
         while self.volume() < volume:
-            self.changeVolumeBy(4)
+            self.changeVolumeBy(5)
             time.sleep(0.2)
 
     def changeSong(self,mood):
@@ -59,7 +59,6 @@ class MediaPlayer(QMediaPlayer):
             self.fadeOut()
             self.setMedia(self.content[mood])
             self.fadeIn(25)
-
 
     def reviewMood(self, text):
         score = self.mood.score
