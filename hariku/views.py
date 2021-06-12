@@ -1,8 +1,6 @@
 import json
-from os import terminal_size
 import random
 
-from sqlalchemy.sql.expression import false
 from hariku.mediaplayer import MediaPlayer
 from threading import Thread
 from PyQt5 import QtGui
@@ -161,7 +159,7 @@ class RegisterScreen(QMainWindow):
 
         self.verticalLayout_2.addWidget(self.pwLineEdit, 0, Qt.AlignHCenter)
 
-        self.loginBtn = QPushButton("Save Password",self.centralwidget)
+        self.loginBtn = QPushButton("Register New Password",self.centralwidget)
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -331,6 +329,12 @@ class HomeScreen(QMainWindow):
         self.monthFilter.dateChanged.connect(self.filterDiaryByMonth)
         self.topcenter_layout.addWidget(self.monthFilter)
 
+        self.showAllBtn = QPushButton("Remove Filter", self.centralwidget)
+        self.showAllBtn.setFont(Hariku_Style.get_font(8))
+        self.showAllBtn.clicked.connect(self.getDiaries)
+        self.showAllBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(38, 160, 173)","rgb(8, 102, 112)"))
+        self.topcenter_layout.addWidget(self.showAllBtn)
+
         spacerItem1 = QSpacerItem(25, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)
         self.topcenter_layout.addItem(spacerItem1)
 
@@ -373,8 +377,8 @@ class HomeScreen(QMainWindow):
 
         self.gridLayout.addWidget(self.contentScrollArea, 2, 0, 1, 1)
         
-        self.judul = QLabel("Welcome Home:)",self)
-        self.judul.setFont(Hariku_Style.get_font(16))
+        self.judul = QLabel("\nWelcome Home:)\n",self)
+        self.judul.setFont(Hariku_Style.get_font(18))
         self.judul.setAlignment(QtCore.Qt.AlignCenter)
         self.gridLayout.addWidget(self.judul, 0, 0, 1, 1)
 
@@ -401,7 +405,7 @@ class HomeScreen(QMainWindow):
 
         diaries = getDiaryByMonth(year, month)
 
-        for diary in diaries:
+        for i, diary in enumerate(diaries):
             self.diaryItem = QWidget(self.scrollAreaWidgetContents)
             sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
             sizePolicy.setHeightForWidth(self.diaryItem.sizePolicy().hasHeightForWidth())
@@ -424,16 +428,29 @@ class HomeScreen(QMainWindow):
 
             self.itemLayout.addLayout(self.contentDateLayout, 0, 0, 1, 1)
 
-            self.viewBtn = QPushButton("⋗", self.diaryItem)
-            self.viewBtn.clicked.connect(lambda: self.viewDiaryById(diary.diary_id))
+            self.buttons.append(i)
+            self.buttons[i] = [QPushButton("⋗", self.diaryItem),QPushButton("×", self.diaryItem)]
+
+            self.buttons[i][0].clicked.connect(lambda checked, i=diary.diary_id: self.viewDiaryById(i))
             sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
             sizePolicy.setHorizontalStretch(0)
             sizePolicy.setVerticalStretch(0)
-            sizePolicy.setHeightForWidth(self.viewBtn.sizePolicy().hasHeightForWidth())
-            self.viewBtn.setSizePolicy(sizePolicy)
-            self.viewBtn.setFont(Hariku_Style.get_font(9))
-            self.viewBtn.setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(145, 133, 63)","rgb(235, 224, 157)"))
-            self.itemLayout.addWidget(self.viewBtn, 0, 1, 1, 1)
+            sizePolicy.setHeightForWidth(self.buttons[i][0].sizePolicy().hasHeightForWidth())
+            self.buttons[i][0].setSizePolicy(sizePolicy)
+            self.buttons[i][0].setFont(Hariku_Style.get_font(9))
+            self.buttons[i][0].setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(145, 133, 63)","rgb(235, 224, 157)"))
+            self.itemLayout.addWidget(self.buttons[i][0], 0, 1, 1, 1)
+
+            # self.deleteBtn = QPushButton("×", self.diaryItem)
+            self.buttons[i][1].clicked.connect(lambda checked, i=diary.diary_id: self.deleteDiaryById(i))
+            sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            sizePolicy.setHorizontalStretch(0)
+            sizePolicy.setVerticalStretch(0)
+            sizePolicy.setHeightForWidth(self.buttons[i][1].sizePolicy().hasHeightForWidth())
+            self.buttons[i][1].setSizePolicy(sizePolicy)
+            self.buttons[i][1].setFont(Hariku_Style.get_font(9))
+            self.buttons[i][1].setStyleSheet(Hariku_Style.get_moodBtn_stylesheet("rgb(145, 63, 63)","rgb(235, 157, 157)"))
+            self.itemLayout.addWidget(self.buttons[i][1], 0, 2, 1, 1)
 
             self.scrollAreaLayout.addWidget(self.diaryItem, alignment=QtCore.Qt.AlignTop)
         
@@ -443,6 +460,9 @@ class HomeScreen(QMainWindow):
 
     def getDiaries(self):
         diaries = getAllDiaries()
+
+        self.monthFilter.setDate(datetime.now())
+        self.clearScrollAreaLayout()
 
         self.buttons = []
 
