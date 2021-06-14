@@ -40,10 +40,9 @@ from datetime import date, datetime
 
 class Ui_SplashScreen(object):
     def setupUi(self, SplashScreen):
-        self.setWindowIcon(Hariku_Style.getIcon())
-
         SplashScreen.setObjectName("SplashScreen")
         SplashScreen.resize(400, 300)
+        SplashScreen.setWindowIcon(Hariku_Style.getIcon())
         self.centralwidget = QWidget(SplashScreen)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -280,7 +279,7 @@ class LoginScreen(QMainWindow):
     def login(self):
         from .database import verify_user
         if verify_user(bytes(self.pwLineEdit.text(),encoding='utf-8')):
-            dialog = HomeScreen()
+            dialog = HomeScreen(self)
             dialog.show()
             self.hide()
         else:
@@ -674,7 +673,7 @@ class DiaryScreen(QMainWindow):
             self.mood_timer.stop()
         except AttributeError:
             pass
-        dialog = HomeScreen()
+        dialog = HomeScreen(self)
         dialog.show()
         self.hide()
 
