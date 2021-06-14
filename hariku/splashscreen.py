@@ -62,6 +62,7 @@ class SplashScreen(QMainWindow):
 
             # SHOW MAIN WINDOW
             import os
+            # Check if database exist
             if os.path.exists("hariku.db"):
                 from .views import LoginScreen
                 self.main = LoginScreen()

@@ -10,8 +10,6 @@ def create_app():
     checkNewUser()
     splashscreen = SplashScreen()
     splashscreen.show()
-    # login = LoginScreen()
-    # login.show()
     sys.exit(app.exec())
 
 def checkNewUser():

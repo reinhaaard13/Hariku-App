@@ -370,9 +370,6 @@ class HomeScreen(QMainWindow):
 
         self.getDiaries()
 
-        # spacerItem2 = QSpacerItem(20, 40, QSizePolicy.Minimum , QSizePolicy.MinimumExpanding)
-        # self.scrollAreaLayout.addItem(spacerItem2)
-
         self.contentScrollArea.setWidget(self.scrollAreaWidgetContents)
 
         self.gridLayout.addWidget(self.contentScrollArea, 2, 0, 1, 1)
