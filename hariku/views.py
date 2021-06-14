@@ -162,7 +162,7 @@ class RegisterScreen(QMainWindow):
 
         self.verticalLayout_2.addWidget(self.pwLineEdit, 0, Qt.AlignHCenter)
 
-        self.loginBtn = QPushButton("Register New Password",self.centralwidget)
+        self.loginBtn = QPushButton("Register Password",self.centralwidget)
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
