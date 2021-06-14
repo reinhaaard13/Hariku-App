@@ -303,7 +303,7 @@ class HomeScreen(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Home Screen")
-        self.resize(505, 461)
+        self.resize(550, 461)
         self.setStyleSheet(Hariku_Style.get_window_stylesheet())
         self.centralWidget = QWidget()
         self.setCentralWidget(self.centralWidget)
@@ -387,7 +387,7 @@ class HomeScreen(QMainWindow):
         self.setCentralWidget(self.centralwidget)
 
     def addNewDiary(self):
-        dialog = DiaryScreen()
+        dialog = DiaryScreen(self)
         dialog.show()
         self.hide()
 
