@@ -529,7 +529,7 @@ class HomeScreen(QMainWindow):
             return string
 
     def viewDiaryById(self, id):
-        dialog = DiaryScreen(edit=False, id=id)
+        dialog = DiaryScreen(self, edit=False, id=id)
         dialog.show()
         self.hide()
 
@@ -542,7 +542,7 @@ class DiaryScreen(QMainWindow):
     
     def __init__(self, parent=None, edit=True, id=None):
         super().__init__(parent)
-        self.setWindowTitle("Add Diary")
+        self.setWindowTitle("Add Diary") if edit == True else self.setWindowTitle("View Diary")
         self.resize(642, 379)
         self.setStyleSheet(Hariku_Style.get_window_stylesheet())
         self.centralWidget = QWidget()
