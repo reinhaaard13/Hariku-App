@@ -40,6 +40,8 @@ from datetime import date, datetime
 
 class Ui_SplashScreen(object):
     def setupUi(self, SplashScreen):
+        self.setWindowIcon(Hariku_Style.getIcon())
+
         SplashScreen.setObjectName("SplashScreen")
         SplashScreen.resize(400, 300)
         self.centralwidget = QWidget(SplashScreen)
@@ -113,6 +115,8 @@ class RegisterScreen(QMainWindow):
         self.setupUI()
     
     def setupUI(self):
+        self.setWindowIcon(Hariku_Style.getIcon())
+
         self.setObjectName("self")
 
         self.centralwidget = QWidget(self)
@@ -202,6 +206,8 @@ class LoginScreen(QMainWindow):
         self.setupUI()
     
     def setupUI(self):
+        self.setWindowIcon(Hariku_Style.getIcon())
+
         self.setObjectName("self")
 
         self.centralwidget = QWidget(self)
@@ -274,7 +280,7 @@ class LoginScreen(QMainWindow):
     def login(self):
         from .database import verify_user
         if verify_user(bytes(self.pwLineEdit.text(),encoding='utf-8')):
-            dialog = HomeScreen(self)
+            dialog = HomeScreen()
             dialog.show()
             self.hide()
         else:
@@ -382,7 +388,7 @@ class HomeScreen(QMainWindow):
         self.setCentralWidget(self.centralwidget)
 
     def addNewDiary(self):
-        dialog = DiaryScreen(self)
+        dialog = DiaryScreen()
         dialog.show()
         self.hide()
 
@@ -524,7 +530,7 @@ class HomeScreen(QMainWindow):
             return string
 
     def viewDiaryById(self, id):
-        dialog = DiaryScreen(self, edit=False, id=id)
+        dialog = DiaryScreen(edit=False, id=id)
         dialog.show()
         self.hide()
 
@@ -668,7 +674,7 @@ class DiaryScreen(QMainWindow):
             self.mood_timer.stop()
         except AttributeError:
             pass
-        dialog = HomeScreen(self)
+        dialog = HomeScreen()
         dialog.show()
         self.hide()
 
